@@ -61,3 +61,20 @@ resource "aws_s3_bucket_object" "architecture_image" {
     terraform = true
   }
 }
+
+# Redundant on refresh_stats lambda function (except for "initialize" text)
+# :warning: Makes s3 page legible to terraform, which allows it to destroy!
+resource "aws_s3_bucket_object" "last_modified" {
+  bucket = "${aws_s3_bucket.website.bucket}"
+  key    = "last_modified.html"
+  content = "initialize"
+  acl    = "public-read"
+  # etag   = "${md5(file("docs/architecture.dot.png"))}"
+  content_type = "text/html"
+  storage_class = "REDUCED_REDUNDANCY"
+
+  tags = {
+    terraform_user = "${data.aws_caller_identity.current.user_id}"
+    terraform = true
+  }
+}
